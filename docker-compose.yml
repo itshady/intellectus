@@ -1,0 +1,46 @@
+version: '2'
+services:
+  nginx:
+    image: 'docker.omgjk.ca/hady/nginx'
+    #image: 'itshady/nginx'
+    volumes:
+      - web-root:/var/www/html
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
+      - ./nginx-conf:/etc/nginx/conf.d
+      - dhparam:/etc/ssl/certs
+    ports:
+      - '80:80'
+      - '443:443'
+    depends_on:
+      - certbot
+  intellectus:
+    image: 'docker.omgjk.ca/hady/intellectus'
+#    image: 'itshady/intellectus'
+    ports:
+      - '90:80'
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
+      - web-root:/var/www/html
+        #   depends_on:
+        #- intellectus
+    command: certonly --webroot --webroot-path=/var/www/html --email hadyib007@gmail.com --agree-tos --no-eff-email -d intellectus.ca -d www.intellectus.ca -d forums.intellectus.ca
+
+volumes:
+  certbot-etc:
+  certbot-var:
+  web-root:
+    #driver: local
+    #driver_opts:
+    #  type: none
+    #  device: ./leroot
+    #  o: bind
+  dhparam:
+    driver: local
+    driver_opts:
+      type: none
+      device: /root/sandbox/intellectus/dhparam
+      o: bind
